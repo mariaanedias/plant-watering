@@ -4,7 +4,9 @@ import os
 import sys
 import time
 from datetime import datetime
-from picamera import PiCamera
+
+import numpy as np
+import cv2
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), './vendored/'))
 
@@ -26,12 +28,31 @@ def capture_image():
     """
     logger.info('Invoked function capture_image()')
 
-    image_stream = io.BytesIO()
-    camera = PiCamera()
+#----
 
-    camera.start_preview()
-    time.sleep(2) # camera warm-up time
-    camera.capture(image_stream, 'jpeg')
+    videoCapture = cv2.VideoCapture(0)
+    try:
+        ret, frame = videoCapture.read()
+        cv2.imwrite('/usr/plantwatering/img_001.jpg', frame)
+    finally:
+        videoCapture.release()
+
+    # capture = cv.CaptureFromCAM(0)
+    # cv.SetCaptureProperty(capture, cv.CV_CAP_PROP_FRAME_HEIGHT, my_height)
+    # cv.SetCaptureProperty(capture, cv.CV_CAP_PROP_FRAME_WIDTH, my_width)
+    # cv.SetCaptureProperty(capture, cv.CV_CAP_PROP_FORMAT, cv.IPL_DEPTH_32F)
+
+    # img = cv.QueryFrame(capture)
+
+
+    # image_stream = io.BytesIO()
+    # camera = PiCamera()
+
+    # camera.start_preview()
+    # time.sleep(2) # camera warm-up time
+    # camera.capture(image_stream, 'jpeg')
+
+#----
 
     file_name = '{}.jpg'.format(datetime.now().isoformat().replace(':', ''))
 
