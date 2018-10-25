@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 
 
 class WaterPumpControl:
-    WATER_PUMP_PIN = 18
+    WATER_PUMP_PIN = 3
     RELEASE_DURATION = 4 # seconds
 
     def __init__(self):
