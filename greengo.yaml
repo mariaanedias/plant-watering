@@ -8,6 +8,19 @@ Cores:
     SyncShadow: True
 
 Lambdas:
+  - name: MoistureHandler
+    handler: moistureHandler.pinned_handler
+    package: lambdas/Moisture
+    alias: dev
+    greengrassConfig:
+      MemorySize: 128000 # kb
+      Timeout: 60 # seconds
+      Pinned: True
+      Environment:
+        AccessSysfs: True
+        ResourceAccessPolicies:
+          - ResourceId: RaspberryGPIO
+            Permission: 'rw'
   - name: WaterRelease
     handler: handler.release_water
     package: lambdas/WaterPumpControl
@@ -49,9 +62,6 @@ Lambdas:
         ResourceAccessPolicies:
           - ResourceId: PiCamera
             Permission: 'rw'
-          - ResourceId: PiCamera2
-            Permission: 'rw'
-
 Subscriptions:
   - Source: GGShadowService
     Subject: '$aws/things/PlantWatering_core/shadow/get/#'
@@ -68,7 +78,9 @@ Subscriptions:
   - Source: cloud
     Subject: 'PlantWatering/WaterRelease'
     Target: Lambda::WaterRelease
-
+  - Source: Lambda::MoistureHandler
+    Subject: 'PlantWatering/MoistureLevel'
+    Target: cloud
 
 # Resource as defined at http://boto3.readthedocs.io/en/latest/reference/services/greengrass.html#Greengrass.Client.create_resource_definition_version
 Resources:
