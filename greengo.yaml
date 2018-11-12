@@ -21,6 +21,19 @@ Lambdas:
         ResourceAccessPolicies:
           - ResourceId: RaspberryGPIO
             Permission: 'rw'
+  - name: TemperatureHandler
+    handler: temperatureHandler.pinned_handler
+    package: lambdas/Temperature
+    alias: dev
+    greengrassConfig:
+      MemorySize: 128000 # kb
+      Timeout: 60 # seconds
+      Pinned: True
+      Environment:
+        AccessSysfs: True
+        ResourceAccessPolicies:
+          - ResourceId: RaspberryGPIO
+            Permission: 'rw'
   - name: WaterRelease
     handler: handler.release_water
     package: lambdas/WaterPumpControl
@@ -80,6 +93,9 @@ Subscriptions:
     Target: Lambda::WaterRelease
   - Source: Lambda::MoistureHandler
     Subject: 'PlantWatering/MoistureLevel'
+    Target: cloud
+  - Source: Lambda::TemperatureHandler
+    Subject: 'PlantWatering/Temperature'
     Target: cloud
 
 # Resource as defined at http://boto3.readthedocs.io/en/latest/reference/services/greengrass.html#Greengrass.Client.create_resource_definition_version

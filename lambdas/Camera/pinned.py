@@ -5,9 +5,6 @@ import sys
 import time
 from datetime import datetime
 
-import numpy as np
-import cv2
-
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), './vendored/'))
 
 import boto3
@@ -30,12 +27,7 @@ def capture_image():
 
 #----
 
-    videoCapture = cv2.VideoCapture(0)
-    try:
-        ret, frame = videoCapture.read()
-        cv2.imwrite('/usr/plantwatering/img_001.jpg', frame)
-    finally:
-        videoCapture.release()
+#        cv2.imwrite('/usr/plantwatering/img_001.jpg', frame)
 
     # capture = cv.CaptureFromCAM(0)
     # cv.SetCaptureProperty(capture, cv.CV_CAP_PROP_FRAME_HEIGHT, my_height)
@@ -54,19 +46,18 @@ def capture_image():
 
 #----
 
-    file_name = '{}.jpg'.format(datetime.now().isoformat().replace(':', ''))
+    # file_name = '{}.jpg'.format(datetime.now().isoformat().replace(':', ''))
 
-    logger.info('Image captured, transferring to s3://{}/{}'.format(
-        S3_BUCKET_NAME,
-        file_name,
-    ))
+    # logger.info('Image captured, transferring to s3://{}/{}'.format(
+    #     S3_BUCKET_NAME,
+    #     file_name,
+    # ))
 
-    s3 = boto3.client('s3')
+    # s3 = boto3.client('s3')
+    
+    # s3.upload_fileobj("", S3_BUCKET_NAME, file_name)
 
-    image_stream.seek(0)
-    s3.upload_fileobj(image_stream, S3_BUCKET_NAME, file_name)
-
-    return
+    # return
 
 
 def start():
