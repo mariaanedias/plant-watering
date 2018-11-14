@@ -24,14 +24,17 @@ GPIO.setmode(GPIO.BOARD)
 #setup greengrasssdk
 iotData = greengrasssdk.client('iot-data')
 
-temp_message = '{ "temperature" : {}} }'
+payload = { "temperature": 0 }
 
-def publishTemperature(temperature):     
-    iotData.publish(topic='PlantWatering/Temperature', payload=temp_message.format(temperature))
+def publishTemperature(temperature):   
+    temp = payload.copy()
+    temp['temperature'] = temperature
+    iotData.publish(topic='PlantWatering/Temperature', payload=json.dumps(temp))    
 
 def collect_moisture(channel):
     # Efetua a leitura do sensor
     umid, temp = Adafruit_DHT.read_retry(sensor, iotData)
+    # umid, temp = 1, 1
     # Caso leitura esteja ok, mostra os valores na tela
     if umid is not None and temp is not None:
         print ("Temperatura = {0:0.1f}  Umidade = {1:0.1f}n").format(temp, umid)
