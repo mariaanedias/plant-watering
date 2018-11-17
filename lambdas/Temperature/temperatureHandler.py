@@ -5,6 +5,7 @@ import time
 import json
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored/'))
+os.environ['PYTHON_EGG_CACHE'] = '/tmp/python-eggs'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -13,7 +14,7 @@ import Adafruit_DHT
 import RPi.GPIO as GPIO
 import greengrasssdk
 
-logger.info('Initializing temperatureHandler')   
+logger.info('Initializing temperatureHandler')
 logger.info('RPI info {}'.format(GPIO.RPI_INFO))
 
 #setup io
@@ -26,10 +27,10 @@ iotData = greengrasssdk.client('iot-data')
 
 payload = { "temperature": 0 }
 
-def publishTemperature(temperature):   
+def publishTemperature(temperature):
     temp = payload.copy()
     temp['temperature'] = temperature
-    iotData.publish(topic='PlantWatering/Temperature', payload=json.dumps(temp))    
+    iotData.publish(topic='PlantWatering/Temperature', payload=json.dumps(temp))
 
 def collect_moisture(channel):
     # Efetua a leitura do sensor
@@ -50,9 +51,9 @@ def collect_moisture(channel):
 def pinned_handler(event, context):
     """
     Mock function for pinned/long-lived Lambda
-    """         
+    """
     pass
 
-while True: 
+while True:
     collect_moisture(channel)
     time.sleep(10)
