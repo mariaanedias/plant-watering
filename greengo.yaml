@@ -2,7 +2,7 @@
 Group:
   name: PlantWatering
 Cores:
-  - name: PlantWatering_core
+  - name: PlantWatering_core_ggbf
     key_path: ./certs
     config_path: ./config
     SyncShadow: True
@@ -77,16 +77,16 @@ Lambdas:
             Permission: 'rw'
 Subscriptions:
   - Source: GGShadowService
-    Subject: '$aws/things/PlantWatering_core/shadow/get/#'
+    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/get/#'
     Target: cloud
   - Source: GGShadowService
-    Subject: '$aws/things/PlantWatering_core/shadow/update/#'
+    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/update/#'
     Target: cloud
   - Source: cloud
-    Subject: '$aws/things/PlantWatering_core/shadow/get/#'
+    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/get/#'
     Target: GGShadowService
   - Source: cloud
-    Subject: '$aws/things/PlantWatering_core/shadow/update/#'
+    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/update/#'
     Target: GGShadowService
   - Source: cloud
     Subject: 'PlantWatering/WaterRelease'
