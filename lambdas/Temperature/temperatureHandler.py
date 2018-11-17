@@ -5,7 +5,6 @@ import time
 import json
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored/'))
-os.environ['PYTHON_EGG_CACHE'] = '/tmp/python-eggs'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
