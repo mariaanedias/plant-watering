@@ -1,3 +1,8 @@
+.DS_Store
+certs/
+config/
+
+
 # project bins and certs
 
 .idea
