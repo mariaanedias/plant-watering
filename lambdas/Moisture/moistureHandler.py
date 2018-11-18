@@ -17,9 +17,10 @@ logger.info('Initializing moistureHandler')
 logger.info('RPI info {}'.format(GPIO.RPI_INFO))
 
 #setup io
-channel = 17
+channel = 17    
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(channel, GPIO.IN)
+logger.info('test2')
 
 #setup greengrasssdk
 iotData = greengrasssdk.client('iot-data')
@@ -37,6 +38,7 @@ def publishMoistureLevel(water_level):
     iotData.publish(topic='PlantWatering/MoistureLevel', payload=water_level)
 
 def collect_moisture(channel):
+    logger.info('test')
     if GPIO.input(channel):
         logger.info('no water detected on channel {}'.format(channel))
         publishNoWater()
@@ -55,4 +57,4 @@ def pinned_handler(event, context):
 
 while True:
     collect_moisture(channel)
-    time.sleep(1)
+    time.sleep(10)
