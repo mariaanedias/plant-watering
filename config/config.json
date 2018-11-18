@@ -1,0 +1,17 @@
+{
+    "runtime" : {
+        "cgroup" : {
+            "useSystemd" : "yes"
+        }
+    },
+    "coreThing" : {
+        "thingArn" : "arn:aws:iot:us-east-1:242804768852:thing/PlantWatering_core_ggbf",
+        "caPath" : "root.ca.pem",
+        "certPath" : "PlantWatering_core_ggbf.pem",
+        "ggHost" : "greengrass.iot.us-east-1.amazonaws.com",
+        "iotHost" : "a2ofvdpzvw8exx.iot.us-east-1.amazonaws.com",
+        "keepAlive" : 600,
+        "keyPath" : "PlantWatering_core_ggbf.key"
+    },
+    "managedRespawn" : false
+}

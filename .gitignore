@@ -1,12 +1,8 @@
 # project bins and certs
-.gg/
-certs/
-config/
 
 .idea
 .vscode
 
-.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
