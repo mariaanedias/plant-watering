@@ -4,47 +4,78 @@ import logging
 import time
 import json
 
+os.environ['PYTHON_EGG_CACHE'] = '/tmp'
+
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored/'))
-os.environ['PYTHON_EGG_CACHE'] = '/tmp/python-eggs'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+import Adafruit_DHT
 import RPi.GPIO as GPIO
 import greengrasssdk
 
 logger.info('Initializing moistureHandler')
-logger.info('RPI info {}'.format(GPIO.RPI_INFO))
 
-#setup io
-channel = 17    
+#setup moisture
+channel_moisture = 17    
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(channel, GPIO.IN)
-logger.info('test2')
+GPIO.setup(channel_moisture, GPIO.IN)
+
+#setup temperature
+channel_temperature = 23
+sensor_temperature = Adafruit_DHT.DHT11
 
 #setup greengrasssdk
 iotData = greengrasssdk.client('iot-data')
 
-NO_WATER = json.dumps({ "water_level" : 0 })
-WATER = json.dumps({"water_level": 1 })
+payload = {"water_level": 0, "temperature": 0, "moisture": 0, "humidity":0, "deviceId": "" }
 
-def publishNoWater():
-    publishMoistureLevel(NO_WATER)
+serial = ""
+def __init__(self):
+    global serial   
+    serial = getserial()
 
-def publishWater():
-    publishMoistureLevel(WATER)
+def getserial():
+    logger.info('getserial called')
+    # Extract serial from cpuinfo file
+    cpuserial = "0000000000000000"
+    try:
+        f = open('/proc/cpuinfo','r')
+        for line in f:
+            if line[0:6]=='Serial':
+                cpuserial = line[10:26]
+        f.close()
+    except:
+        cpuserial = "ERROR000000000"
+    return cpuserial   
 
-def publishMoistureLevel(water_level):
-    iotData.publish(topic='PlantWatering/MoistureLevel', payload=water_level)
+def publish_metrics():
+    shallow = payload.copy()
+    shallow['water_level'] = collect_moisture()
+    shallow['deviceId'] = getserial()
+    shallow['humidity'], shallow['temperature'] = collect_temperature()
+    iotData.publish(topic='SmartGarden/MoistureLevel', payload=json.dumps(shallow))
 
-def collect_moisture(channel):
-    logger.info('test')
-    if GPIO.input(channel):
-        logger.info('no water detected on channel {}'.format(channel))
-        publishNoWater()
+def collect_moisture():
+    if GPIO.input(channel_moisture):
+        logger.info('no water detected on channel {}'.format(channel_moisture))
+        return 0
     else:
-        logger.info('water detected on channel {}'.format(channel))
-        publishWater()
+        logger.info('water detected on channel {}'.format(channel_moisture))
+        return 1
+
+def collect_temperature():    
+    
+    logger.info("sensor_temperature {}".format(sensor_temperature))
+    logger.info("channel_temperature {}".format(channel_temperature))
+    humidity, temperature = Adafruit_DHT.read_retry(sensor_temperature, channel_temperature)
+    logger.info("humidity {}, temperature {}".format(humidity, temperature))
+    if humidity is not None and temperature is not None:
+        return humidity, temperature
+    logger.error("Falha ao ler dados do DHT11")
+    return 0, 0
+
 
 #GPIO.add_event_detect(channel, GPIO.BOTH)
 #GPIO.add_event_callback(channel, collect_moisture)
@@ -56,5 +87,5 @@ def pinned_handler(event, context):
     pass
 
 while True:
-    collect_moisture(channel)
-    time.sleep(10)
+    publish_metrics()    
+    time.sleep(30)

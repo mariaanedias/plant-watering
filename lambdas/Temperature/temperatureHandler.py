@@ -35,7 +35,8 @@ def publishTemperature(temperature, humidity):
 
 def collect_moisture(channel):
     # Efetua a leitura do sensor
-    umid, temp = Adafruit_DHT.read_retry(sensor, 4)    
+    umid, temp = 0,0
+    #umid, temp = Adafruit_DHT.read_retry(sensor, 4)    
     # Caso leitura esteja ok, mostra os valores na tela
     if umid is not None and temp is not None:
         print ("Temperatura = {0:0.1f}  Umidade = {1:0.1f}n").format(temp, umid)
@@ -56,4 +57,4 @@ def pinned_handler(event, context):
 
 while True:
     collect_moisture(channel)
-    time.sleep(10)
+    time.sleep(30)

@@ -1,8 +1,8 @@
 # Greeengrass Group definition file
 Group:
-  name: PlantWatering
+  name: SmartGarden
 Cores:
-  - name: PlantWatering_core_ggbf
+  - name: SmartGarden_core
     key_path: ./certs
     config_path: ./config
     SyncShadow: True
@@ -11,19 +11,6 @@ Lambdas:
   - name: MoistureHandler
     handler: moistureHandler.pinned_handler
     package: lambdas/Moisture
-    alias: dev
-    greengrassConfig:
-      MemorySize: 128000 # kb
-      Timeout: 60 # seconds
-      Pinned: True
-      Environment:
-        AccessSysfs: True
-        ResourceAccessPolicies:
-          - ResourceId: RaspberryGPIO
-            Permission: 'rw'
-  - name: TemperatureHandler
-    handler: temperatureHandler.pinned_handler
-    package: lambdas/Temperature
     alias: dev
     greengrassConfig:
       MemorySize: 128000 # kb
@@ -75,27 +62,26 @@ Lambdas:
         ResourceAccessPolicies:
           - ResourceId: PiCamera
             Permission: 'rw'
+          - ResourceId: DataFolder
+            Permission: 'rw'
 Subscriptions:
   - Source: GGShadowService
-    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/get/#'
+    Subject: '$aws/things/SmartGarden_core/shadow/get/#'
     Target: cloud
   - Source: GGShadowService
-    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/update/#'
+    Subject: '$aws/things/SmartGarden_core/shadow/update/#'
     Target: cloud
   - Source: cloud
-    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/get/#'
+    Subject: '$aws/things/SmartGarden_core/shadow/get/#'
     Target: GGShadowService
   - Source: cloud
-    Subject: '$aws/things/PlantWatering_core_ggbf/shadow/update/#'
+    Subject: '$aws/things/SmartGarden_core/shadow/update/#'
     Target: GGShadowService
   - Source: cloud
-    Subject: 'PlantWatering/WaterRelease'
+    Subject: 'SmartGarden/WaterRelease'
     Target: Lambda::WaterRelease
   - Source: Lambda::MoistureHandler
-    Subject: 'PlantWatering/MoistureLevel'
-    Target: cloud
-  - Source: Lambda::TemperatureHandler
-    Subject: 'PlantWatering/Temperature'
+    Subject: 'SmartGarden/MoistureLevel'
     Target: cloud
 
 # Resource as defined at http://boto3.readthedocs.io/en/latest/reference/services/greengrass.html#Greengrass.Client.create_resource_definition_version

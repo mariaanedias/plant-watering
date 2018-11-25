@@ -4,27 +4,70 @@ import os
 import sys
 import time
 from datetime import datetime
+from subprocess import call
+from time import sleep
+from fnmatch import fnmatch
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), './vendored/'))
 
-import boto3
+# import boto3
 
 import greengrasssdk
+s3client = greengrasssdk.client("s3")
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 logger.info('Initializing Camera/handler')
 
-S3_BUCKET_NAME = 'plant-watering-images'
+OS_PATH_PICS = "/home/ggc_user"
+S3_BUCKET_NAME = 'smart-garden-images'
 INTERVAL = 600 # seconds -> 10 min
+
+serial = ""
+def __init__(self):
+    global serial   
+    serial = getserial()
+
+def getserial():
+    logger.info('getserial called')
+    # Extract serial from cpuinfo file
+    cpuserial = "0000000000000000"
+    try:
+        f = open('/proc/cpuinfo','r')
+        for line in f:
+            if line[0:6]=='Serial':
+                cpuserial = line[10:26]
+        f.close()
+    except:
+        cpuserial = "ERROR000000000"
+    return cpuserial   
 
 def capture_image():
     """
     Captures image from RPi Camera
     """
+    delete_content()
     logger.info('Invoked function capture_image()')
+    logger.info(os.path.dirname(os.path.realpath(__file__)))
+    call(os.path.dirname(os.path.realpath(__file__)) + "/webcam.sh")
+    sleep(1)
+    for file in os.listdir(OS_PATH_PICS):
+        if fnmatch(file, "*.jpg"):
+            logger.log(file)
+            s3client.upload_file(os.path.join(OS_PATH_PICS, file), S3_BUCKET_NAME, "{}_{}".format(serial,file))
+    sleep(5)
+    delete_content()
 
+def delete_content():
+    for the_file in os.listdir(OS_PATH_PICS):
+        file_path = os.path.join(OS_PATH_PICS, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
 #----
 
 #        cv2.imwrite('/usr/plantwatering/img_001.jpg', frame)
