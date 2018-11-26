@@ -4,7 +4,7 @@ import logging
 import time
 import json
 
-os.environ['PYTHON_EGG_CACHE'] = '/tmp'
+# os.environ['PYTHON_EGG_CACHE'] = '/tmp'
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored/'))
 
@@ -23,7 +23,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(channel_moisture, GPIO.IN)
 
 #setup temperature
-channel_temperature = 23
+channel_temperature = 4
 sensor_temperature = Adafruit_DHT.DHT11
 
 #setup greengrasssdk
@@ -48,6 +48,7 @@ def getserial():
         f.close()
     except:
         cpuserial = "ERROR000000000"
+    logger.info('serial {}'.format(cpuserial))
     return cpuserial   
 
 def publish_metrics():
@@ -66,16 +67,13 @@ def collect_moisture():
         return 1
 
 def collect_temperature():    
-    
-    logger.info("sensor_temperature {}".format(sensor_temperature))
-    logger.info("channel_temperature {}".format(channel_temperature))
     humidity, temperature = Adafruit_DHT.read_retry(sensor_temperature, channel_temperature)
-    logger.info("humidity {}, temperature {}".format(humidity, temperature))
+    logger.info("humidity: {} temperature: {}".format(humidity, temperature))
     if humidity is not None and temperature is not None:
         return humidity, temperature
     logger.error("Falha ao ler dados do DHT11")
     return 0, 0
-
+    
 
 #GPIO.add_event_detect(channel, GPIO.BOTH)
 #GPIO.add_event_callback(channel, collect_moisture)

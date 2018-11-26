@@ -102,7 +102,7 @@ Resources:
   - Name: PiCamera
     Id: PiCamera
     LocalDeviceResourceData:
-      SourcePath: /dev/vcsm
+      SourcePath: /dev/video0
       GroupOwnerSetting:
         AutoAddGroupOwner: True
   - Name: PiCamera2

@@ -7,14 +7,18 @@ from datetime import datetime
 from subprocess import call
 from time import sleep
 from fnmatch import fnmatch
+import json 
+
+from PIL import Image
+import select
+import v4l2capture
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), './vendored/'))
 
-# import boto3
+import boto3
 
 import greengrasssdk
-s3client = greengrasssdk.client("s3")
-
+s3client = greengrasssdk.client("iot-data")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,11 +30,10 @@ S3_BUCKET_NAME = 'smart-garden-images'
 INTERVAL = 600 # seconds -> 10 min
 
 serial = ""
-def __init__(self):
-    global serial   
-    serial = getserial()
-
 def getserial():
+    if serial != "":
+        return serial
+
     logger.info('getserial called')
     # Extract serial from cpuinfo file
     cpuserial = "0000000000000000"
@@ -40,34 +43,56 @@ def getserial():
             if line[0:6]=='Serial':
                 cpuserial = line[10:26]
         f.close()
-    except:
+    except: 
         cpuserial = "ERROR000000000"
     return cpuserial   
+
+def get_bucket_size():
+    s3 = boto3.client("s3")
+    response = s3.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix="raw-pics/{}/".format(getserial()))      
+    if "Contents" in response:      
+        return len(response["Contents"])
+    else:
+        return 0
+    
+def take_pic():
+    video = v4l2capture.Video_device("/dev/video0")
+    size_x, size_y = video.set_format(1280, 1024)
+    video.create_buffers(1)
+    video.queue_all_buffers()
+    video.start()
+    select.select((video,), (), ())
+    image_data = video.read()
+    video.close()
+    image = Image.fromstring("RGB", (size_x, size_y), image_data)
+    in_mem_file = io.BytesIO()
+    logger.info("In_men_file pre saved size {}".format(len(in_mem_file.getvalue())))
+    image.save(in_mem_file, "JPEG")
+    logger.info("In_men_filepost saved size {}".format(len(in_mem_file.getvalue())))
+    return in_mem_file    
+ 
+def upload_to_s3(file):
+    s3 = boto3.resource("s3")
+    bucket = s3.Bucket(S3_BUCKET_NAME)
+    bucket_size = get_bucket_size()
+    logger.info("bucket_size {}".format(bucket_size))
+    key = 'raw-pics/{}/IMG{}'.format(getserial(), str(get_bucket_size() + 1).zfill(3)) 
+    bucket.put_object(Key=key, Body=file.getvalue())
+    logger.info("image saved to {} with ".format(key))
+    s3_client = boto3.client("s3")
+    retorno = s3_client.get_object(Key=key, Bucket=S3_BUCKET_NAME)
+    logger.info("tamanho do arquivo no bucket s3 {}".format(retorno["ContentLength"]))
 
 def capture_image():
     """
     Captures image from RPi Camera
     """
-    delete_content()
     logger.info('Invoked function capture_image()')
-    logger.info(os.path.dirname(os.path.realpath(__file__)))
-    call(os.path.dirname(os.path.realpath(__file__)) + "/webcam.sh")
-    sleep(1)
-    for file in os.listdir(OS_PATH_PICS):
-        if fnmatch(file, "*.jpg"):
-            logger.log(file)
-            s3client.upload_file(os.path.join(OS_PATH_PICS, file), S3_BUCKET_NAME, "{}_{}".format(serial,file))
-    sleep(5)
-    delete_content()
+    file = take_pic()
+    upload_to_s3(file)
+    logger.info("tirou foto")
 
-def delete_content():
-    for the_file in os.listdir(OS_PATH_PICS):
-        file_path = os.path.join(OS_PATH_PICS, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print(e)
+
 #----
 
 #        cv2.imwrite('/usr/plantwatering/img_001.jpg', frame)
