@@ -62,8 +62,6 @@ Lambdas:
         ResourceAccessPolicies:
           - ResourceId: PiCamera
             Permission: 'rw'
-          - ResourceId: DataFolder
-            Permission: 'rw'
 Subscriptions:
   - Source: GGShadowService
     Subject: '$aws/things/SmartGarden_core/shadow/get/#'

@@ -27,7 +27,7 @@ logger.info('Initializing Camera/handler')
 
 OS_PATH_PICS = "/home/ggc_user"
 S3_BUCKET_NAME = 'smart-garden-images'
-INTERVAL = 600 # seconds -> 10 min
+INTERVAL = 300 # seconds -> 5 min
 
 serial = ""
 def getserial():
@@ -76,7 +76,7 @@ def upload_to_s3(file):
     bucket = s3.Bucket(S3_BUCKET_NAME)
     bucket_size = get_bucket_size()
     logger.info("bucket_size {}".format(bucket_size))
-    key = 'raw-pics/{}/IMG{}'.format(getserial(), str(get_bucket_size() + 1).zfill(3)) 
+    key = 'raw-pics/{}/IMG{}.jpg'.format(getserial(), str(get_bucket_size() + 1).zfill(3)) 
     bucket.put_object(Key=key, Body=file.getvalue())
     logger.info("image saved to {} with ".format(key))
     s3_client = boto3.client("s3")
@@ -91,41 +91,6 @@ def capture_image():
     file = take_pic()
     upload_to_s3(file)
     logger.info("tirou foto")
-
-
-#----
-
-#        cv2.imwrite('/usr/plantwatering/img_001.jpg', frame)
-
-    # capture = cv.CaptureFromCAM(0)
-    # cv.SetCaptureProperty(capture, cv.CV_CAP_PROP_FRAME_HEIGHT, my_height)
-    # cv.SetCaptureProperty(capture, cv.CV_CAP_PROP_FRAME_WIDTH, my_width)
-    # cv.SetCaptureProperty(capture, cv.CV_CAP_PROP_FORMAT, cv.IPL_DEPTH_32F)
-
-    # img = cv.QueryFrame(capture)
-
-
-    # image_stream = io.BytesIO()
-    # camera = PiCamera()
-
-    # camera.start_preview()
-    # time.sleep(2) # camera warm-up time
-    # camera.capture(image_stream, 'jpeg')
-
-#----
-
-    # file_name = '{}.jpg'.format(datetime.now().isoformat().replace(':', ''))
-
-    # logger.info('Image captured, transferring to s3://{}/{}'.format(
-    #     S3_BUCKET_NAME,
-    #     file_name,
-    # ))
-
-    # s3 = boto3.client('s3')
-    
-    # s3.upload_fileobj("", S3_BUCKET_NAME, file_name)
-
-    # return
 
 
 def start():

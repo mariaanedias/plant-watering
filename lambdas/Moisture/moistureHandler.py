@@ -29,7 +29,7 @@ sensor_temperature = Adafruit_DHT.DHT11
 #setup greengrasssdk
 iotData = greengrasssdk.client('iot-data')
 
-payload = {"water_level": 0, "temperature": 0, "moisture": 0, "humidity":0, "deviceId": "" }
+payload = {"water_level": 0, "temperature": 0, "humidity":0, "deviceId": "" }
 
 serial = ""
 def __init__(self):
@@ -86,4 +86,4 @@ def pinned_handler(event, context):
 
 while True:
     publish_metrics()    
-    time.sleep(30)
+    time.sleep(20)
