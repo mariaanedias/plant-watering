@@ -2,6 +2,7 @@
 certs/
 config/
 .gg/
+bash/
 
 # project bins and certs
 
